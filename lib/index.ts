@@ -98,4 +98,13 @@ export class PromiseHttpServer {
       this.server.listen(port, resolve);
     });
   }
+
+  /**
+   * Close the server
+   */
+  close(): Promise<void> {
+    return new Promise<void>((resolve)=>{
+      this.server.close(resolve);
+    });
+  }
 }

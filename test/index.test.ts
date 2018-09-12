@@ -52,6 +52,6 @@ describe('PromiseHttpServer', () => {
     assert.equal(requestBodyStr, "this is a request");
 
     // Close the server
-    promiseServer.server.close();
+    await promiseServer.close();
   });
 });
