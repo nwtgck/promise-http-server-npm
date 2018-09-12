@@ -88,4 +88,14 @@ export class PromiseHttpServer {
       }
     }));
   }
+
+  /**
+   * Listen on the specific port
+   * @param port
+   */
+  listen(port: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.server.listen(port, resolve);
+    });
+  }
 }

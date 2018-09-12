@@ -4,8 +4,10 @@ const {PromiseHttpServer} = require("promise-http-server");
 (async ()=>{
   // Create promise-based HTTP server
   const promiseServer = new PromiseHttpServer();
-  // Listen on port 8899
-  promiseServer.server.listen(8899);
+  const port = 8899;
+  // Listen
+  await promiseServer.listen(port);
+  console.log(`Listening on ${port}...`);
 
   while(true) {
     // Wait for request
