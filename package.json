@@ -2,8 +2,8 @@
   "name": "promise-http-server",
   "version": "0.1.0-SNAPSHOT",
   "description": "Promise-based HTTP server",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",

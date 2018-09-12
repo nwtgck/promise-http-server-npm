@@ -11,3 +11,5 @@ install:
   - npm install
 script:
   - npm test
+  # Just build example
+  - cd example && npm run build
