@@ -5,7 +5,7 @@ Promise-based HTTP server
 
 ## Create a server
 
-Here is a simple HTTP server written in JavaScript.
+Here is a simple HTTP server written in JavaScript.
 
 ```js
 const {PromiseHttpServer} = require("promise-http-server");
