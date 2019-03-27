@@ -1,14 +1,22 @@
 # promise-http-server
 [![npm](https://img.shields.io/npm/v/promise-http-server.svg)](https://www.npmjs.com/package/promise-http-server)
- [![Build Status](https://travis-ci.com/nwtgck/promise-http-server-npm.svg?token=TuxNpqznwwyy7hyJwBVm&branch=develop)](https://travis-ci.com/nwtgck/promise-http-server-npm) [![Greenkeeper badge](https://badges.greenkeeper.io/nwtgck/promise-http-server-npm.svg?token=b9adcffa0bb1bc9b8cbfde2c9781d4cc00cdb5f7035552c84a0aabb0c7a44987&ts=1536742116756)](https://greenkeeper.io/)
+ [![Build Status](https://travis-ci.com/nwtgck/promise-http-server-npm.svg?token=TuxNpqznwwyy7hyJwBVm&branch=develop)](https://travis-ci.com/nwtgck/promise-http-server-npm)
 
 Promise-based HTTP server
 
+## Install
+
+```
+npm i -S promise-http-server
+```
+
 ## Create a server
 
+Although this project is written in TypeScript, **you can also use JavaScript**.  
 Here is a simple HTTP server written in JavaScript.
 
 ```js
+// JavaScript
 const {PromiseHttpServer} = require("promise-http-server");
 
 (async ()=>{
@@ -32,4 +40,15 @@ const {PromiseHttpServer} = require("promise-http-server");
 })();
 ```
 
-`req` and `res` in the example are pure request and response used in `http.createServer()` callback. You can also get a pure HTTP server object by  `promiseServer.server`.
+## Pure objects in `http` module
+
+`req` and `res` above are pure Node.js object in [`http` module](https://nodejs.org/api/http.html).
+`promiseServer.server` is also pure Node.js object.
+
+Here are the types of those objects.
+* `req`: [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage)
+* `res`: [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse)
+* `promiseServer.server`: [http.Server](https://nodejs.org/api/http.html#http_class_http_server)
+
+
+Pure objects allow you to create a server in your familiar way.
