@@ -104,7 +104,7 @@ export class PromiseHttpServer {
    */
   close(): Promise<void> {
     return new Promise<void>((resolve)=>{
-      this.server.close(resolve);
+      this.server.close(()=>resolve());
     });
   }
 }
