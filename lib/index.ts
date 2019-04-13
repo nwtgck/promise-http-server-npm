@@ -8,23 +8,28 @@ function unwrapUndefined<T>(value: T | undefined): T {
   return value as T;
 }
 
-type ReqRes = {req: http.IncomingMessage, res: http.ServerResponse};
-type ReqResOrError =
+type ReqResOrError<Req, Res> =
   {
     kind: "REQ_RES",
-    req: http.IncomingMessage,
-    res: http.ServerResponse
+    req: Req,
+    res: Res
   } |
   {
     kind: "ERROR",
     error: Error
   };
 
-export class PromiseHttpServer {
-  private resolveAndRejectQueue: ({resolve: (reqRes: ReqRes) => void, reject: (err: Error) => void})[] = [];
-  private reqResOrErrorQueue: ReqResOrError[] = [];
 
-  readonly server: http.Server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse)=>{
+/**
+ * Base Promise HTTPX server
+ */
+export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage), Res extends (http.ServerResponse), Server extends (http.Server)> {
+  private resolveAndRejectQueue: ({resolve: (reqRes: {req: Req, res: Res}) => void, reject: (err: Error) => void})[] = [];
+  private reqResOrErrorQueue: ReqResOrError<Req, Res>[] = [];
+
+  abstract createServer(handler: (req: Req, res: Res) => void): Server
+
+  readonly server: http.Server = this.createServer((req: Req, res: Res)=>{
     if(this.resolveAndRejectQueue.length === 0) {
       // Push request and response
       this.reqResOrErrorQueue.push({
@@ -34,7 +39,7 @@ export class PromiseHttpServer {
       });
     } else {
       // Get the first resolve and reject functions
-      const resolveAndReject: {resolve: (reqRes: ReqRes) => void, reject: (err: Error) => void}
+      const resolveAndReject: {resolve: (reqRes: {req: Req, res: Res}) => void, reject: (err: Error) => void}
         = unwrapUndefined(this.resolveAndRejectQueue.shift());
       // Resolve
       resolveAndReject.resolve({
@@ -51,7 +56,7 @@ export class PromiseHttpServer {
       });
     } else {
       // Get the first resolve and reject functions
-      const resolveAndReject: {resolve: (reqRes: ReqRes) => void, reject: (err: Error) => void}
+      const resolveAndReject: {resolve: (reqRes: {req: Req, res: Res}) => void, reject: (err: Error) => void}
         = unwrapUndefined(this.resolveAndRejectQueue.shift());
       // Resolve
       resolveAndReject.reject(err);
@@ -61,8 +66,8 @@ export class PromiseHttpServer {
   /**
    * Wait for request and response
    */
-  accept(): Promise<ReqRes> {
-    return new Promise<ReqRes>(((resolve, reject) => {
+  accept(): Promise<{req: Req, res: Res}> {
+    return new Promise<{req: Req, res: Res}>(((resolve, reject) => {
       if(this.reqResOrErrorQueue.length === 0) {
         // Append resolver
         this.resolveAndRejectQueue.push({
@@ -71,7 +76,7 @@ export class PromiseHttpServer {
         });
       } else {
         // Get the first request and response
-        const reqResOrError: ReqResOrError = unwrapUndefined(this.reqResOrErrorQueue.shift());
+        const reqResOrError: ReqResOrError<Req, Res> = unwrapUndefined(this.reqResOrErrorQueue.shift());
         switch (reqResOrError.kind) {
           case "REQ_RES":
             // Resolve by the request and response
@@ -106,5 +111,14 @@ export class PromiseHttpServer {
     return new Promise<void>((resolve)=>{
       this.server.close(()=>resolve());
     });
+  }
+}
+
+/**
+ * Promise HTTP server
+ */
+export class PromiseHttpServer extends BasePromiseHttpServer<http.IncomingMessage, http.ServerResponse, http.Server> {
+  createServer(handler: (req: http.IncomingMessage, res: http.ServerResponse) => void): http.Server {
+    return http.createServer(handler);
   }
 }
