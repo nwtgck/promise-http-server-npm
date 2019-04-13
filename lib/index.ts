@@ -1,4 +1,6 @@
 import * as http from "http";
+import * as https from "https";
+import * as net from "net";
 
 /**
  * Unwrap union type of T and undefined
@@ -23,13 +25,13 @@ type ReqResOrError<Req, Res> =
 /**
  * Base Promise HTTPX server
  */
-export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage), Res extends (http.ServerResponse), Server extends (http.Server)> {
+export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage), Res extends (http.ServerResponse), Server extends net.Server> {
   private resolveAndRejectQueue: ({resolve: (reqRes: {req: Req, res: Res}) => void, reject: (err: Error) => void})[] = [];
   private reqResOrErrorQueue: ReqResOrError<Req, Res>[] = [];
 
   abstract createServer(handler: (req: Req, res: Res) => void): Server
 
-  readonly server: http.Server = this.createServer((req: Req, res: Res)=>{
+  readonly server: Server = this.createServer((req: Req, res: Res)=>{
     if(this.resolveAndRejectQueue.length === 0) {
       // Push request and response
       this.reqResOrErrorQueue.push({
@@ -120,5 +122,17 @@ export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage), 
 export class PromiseHttpServer extends BasePromiseHttpServer<http.IncomingMessage, http.ServerResponse, http.Server> {
   createServer(handler: (req: http.IncomingMessage, res: http.ServerResponse) => void): http.Server {
     return http.createServer(handler);
+  }
+}
+
+/**
+ * Promise HTTPS server
+ */
+export class PromiseHttpsServer extends BasePromiseHttpServer<http.IncomingMessage, http.ServerResponse, https.Server> {
+  constructor(readonly options: https.ServerOptions) {
+    super();
+  }
+  createServer(handler: (req: http.IncomingMessage, res: http.ServerResponse) => void): https.Server {
+    return https.createServer(this.options, handler);
   }
 }
