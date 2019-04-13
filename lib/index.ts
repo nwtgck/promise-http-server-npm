@@ -1,5 +1,6 @@
 import * as http from "http";
 import * as https from "https";
+import * as http2 from "http2";
 import * as net from "net";
 
 /**
@@ -25,7 +26,7 @@ type ReqResOrError<Req, Res> =
 /**
  * Base Promise HTTPX server
  */
-export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage), Res extends (http.ServerResponse), Server extends net.Server> {
+export abstract class BasePromiseHttpServer<Req extends (http.IncomingMessage | http2.Http2ServerRequest), Res extends (http.ServerResponse | http2.Http2ServerResponse), Server extends net.Server> {
   private resolveAndRejectQueue: ({resolve: (reqRes: {req: Req, res: Res}) => void, reject: (err: Error) => void})[] = [];
   private reqResOrErrorQueue: ReqResOrError<Req, Res>[] = [];
 
@@ -134,5 +135,27 @@ export class PromiseHttpsServer extends BasePromiseHttpServer<http.IncomingMessa
   }
   createServer(handler: (req: http.IncomingMessage, res: http.ServerResponse) => void): https.Server {
     return https.createServer(this.options, handler);
+  }
+}
+
+/**
+ * Promise HTTP2 server
+ */
+export class PromiseHttp2Server extends BasePromiseHttpServer<http2.Http2ServerRequest, http2.Http2ServerResponse, http2.Http2Server> {
+  createServer(handler: (req: http2.Http2ServerRequest, res: http2.Http2ServerResponse) => void): http2.Http2Server {
+    return http2.createServer(handler);
+  }
+}
+
+
+/**
+ * Promise HTTP2 Secure server
+ */
+export class PromiseHttp2SecureServer extends BasePromiseHttpServer<http2.Http2ServerRequest, http2.Http2ServerResponse, http2.Http2SecureServer> {
+  constructor(readonly options: http2.SecureServerOptions) {
+    super();
+  }
+  createServer(handler: (req: http2.Http2ServerRequest, res: http2.Http2ServerResponse) => void): http2.Http2SecureServer {
+    return http2.createSecureServer(this.options, handler);
   }
 }
