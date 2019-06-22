@@ -52,3 +52,14 @@ Here are the types of those objects.
 
 
 Pure objects allow you to create a server in your familiar way.
+
+## HTTP, HTTPS, HTTP/2, Secure HTTP/2
+
+Here are classes to handle HTTP-related protocols.
+
+|                |                            |
+|----------------|----------------------------|
+| HTTP           | `PromiseHttpServer`        |
+| HTTPS          | `PromiseHttpsServer`       |
+| HTTP/2         | `PromiseHttp2Server`       |
+| Secure HTTP/2  | `PromiseHttp2SecureServer` |
